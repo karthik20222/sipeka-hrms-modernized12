@@ -1,0 +1,71 @@
+*** Backend section completion ***
+
+// Admin Routes:
+
+/* ==== Master Data ==== */
+// Employees
+router.get('/employees', verifyUser, adminOnly, getEmployees);
+router.get('/employees/id/:id', verifyUser, adminOnly, getEmployeeById);
+router.get('/employees/national-id/:nationalId', verifyUser, adminOnly, getEmployeeByNationalId);
+router.get('/employees/name/:name', verifyUser, adminOnly, getEmployeeByName);
+router.post('/employees', createEmployee);
+router.patch('/employees/:id', verifyUser, adminOnly, updateEmployee);
+router.delete('/employees/:id', verifyUser, adminOnly, deleteEmployee);
+router.patch('/employees/:id/change-password', verifyUser, adminOnly, changeEmployeePasswordByAdmin);
+// Positions
+router.get('/positions', verifyUser, adminOnly, getPositions);
+router.post('/positions', verifyUser, adminOnly, createPosition);
+router.patch('/positions/:id', verifyUser,  adminOnly, updatePosition);
+router.delete('/positions/:id', verifyUser, adminOnly, deletePosition);
+
+/* ==== Transactions ==== */
+// Attendance
+router.get('/attendance', verifyUser, adminOnly, viewAttendance);
+router.post('/attendance', createAttendance);
+router.patch('/attendance/update/:id', updateAttendance);
+router.delete('/attendance/:id', verifyUser, adminOnly, deleteAttendance);
+// Salary Deductions
+router.get('/salary-deductions', adminOnly, verifyUser, viewSalaryDeductions);
+router.post('/salary-deductions', adminOnly, verifyUser, createSalaryDeduction);
+router.patch('/salary-deductions/update/:id', adminOnly, verifyUser, updateSalaryDeduction);
+router.delete('/salary-deductions/:id', adminOnly, verifyUser, deleteSalaryDeduction);
+// Employee Salaries
+router.get('/employee-salaries', viewEmployeeSalaries);
+router.get('/employee-salaries/month/:month', viewEmployeeSalariesByMonth);
+router.get('/employee-salaries/year/:year', viewEmployeeSalariesByYear);
+
+/* ==== Reports ==== */
+// Salary Reports
+router.get('/reports/salary', viewEmployeeSalaryReport);
+router.get('/reports/salary/name/:name', viewEmployeeSalaryReportByName);
+router.get('/reports/salary/month/:month', viewEmployeeSalaryReportByMonth);
+router.get('/reports/salary/year/:year', viewEmployeeSalaryReportByYear);
+// Attendance Reports
+router.get('/reports/attendance/month/:month', viewAttendanceReportByMonth);
+router.get('/reports/attendance/year/:year', viewAttendanceReportByYear);
+// Payslips
+router.get('/reports/payslips/name/:name', viewPayslipByName);
+router.get('/reports/payslips/month/:month', viewPayslipByMonth);
+router.get('/reports/payslips/year/:year', viewPayslipByYear);
+
+/* ==== Change Password ==== */
+router.patch('/change-password', verifyUser, changePassword);
+
+/* ==== Logout ==== */
+router.delete('/logout', LogOut);
+
+
+
+// Employee Routes:
+/* ==== Dashboard ==== */
+router.get('/dashboard', verifyUser, employeeDashboard);
+/* ==== Data Gaji ==== */
+router.get('/salary/month/:month', verifyUser, viewEmployeeSalaryByMonth);
+router.get('/salary/year/:year', verifyUser, viewEmployeeSalaryByYear);
+/* ==== Change Password ==== */
+router.patch('/change-password', verifyUser, changePassword);
+/* ==== Logout ==== */
+router.delete('/logout', LogOut);
+
+
+** NOTE: For version 1, the backend is complete.

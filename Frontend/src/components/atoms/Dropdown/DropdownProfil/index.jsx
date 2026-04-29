@@ -1,0 +1,149 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { BiLogOut } from 'react-icons/bi';
+import { FiSettings } from 'react-icons/fi';
+import { MdKeyboardArrowDown } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.css';
+import { logoutUser } from '../../../../config/redux/action';
+import { reset } from '../../../../config/redux/reducer/authReducer';
+import axios from "axios";
+
+const DropdownProfil = () => {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dispatch = useDispatch();
+  const trigger = useRef(null);
+  const dropdown = useRef(null);
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+  const [employeeData, setEmployeeData] = useState(null);
+
+  const onLogout = () => {
+    Swal.fire({
+        icon: 'question',
+        title: 'Logout',
+        text: 'Are you sure you want to logout?',
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          dispatch(logoutUser());
+          Swal.fire({
+            icon: 'success',
+            title: 'Logout Successful',
+            text: 'You have successfully logged out.',
+          }).then(() => {
+            navigate('/login');
+          });
+        }
+      });
+  };
+
+  useEffect(() => {
+    const getEmployeeData = async () => {
+      try {
+        if (user && user.employee_name) {
+          const response = await axios.get(
+            `http://localhost:5000/employees/name/${user.employee_name}`
+          );
+          const data = response.data;
+          setEmployeeData(data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getEmployeeData();
+  }, [user]);
+
+  useEffect(() => {
+    const clickHandler = (event) => {
+      if (!dropdownOpen) return;
+      if (
+        dropdown.current &&
+        !dropdown.current.contains(event.target) &&
+        trigger.current &&
+        !trigger.current.contains(event.target)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('click', clickHandler);
+    return () => {
+      document.removeEventListener('click', clickHandler);
+    };
+  }, [dropdownOpen]);
+
+  useEffect(() => {
+    const keyHandler = ({ keyCode }) => {
+      if (!dropdownOpen || keyCode !== 27) return;
+      setDropdownOpen(false);
+    };
+
+    document.addEventListener('keydown', keyHandler);
+    return () => document.removeEventListener('keydown', keyHandler);
+  }, [dropdownOpen]);
+
+  return (
+    <div className='relative'>
+      {employeeData && (
+        <Link
+          ref={trigger}
+          onClick={() => setDropdownOpen(!dropdownOpen)}
+          className='flex items-center gap-4'
+          to='#'
+        >
+          <span className='hidden lg:block'>
+            <span className='block text-sm font-medium text-black dark:text-white'>
+              {employeeData.employee_name}
+            </span>
+            <span className='block text-xs'>{employeeData.role}</span>
+          </span>
+
+          <div className='h-12 w-12 rounded-full overflow-hidden'>
+            <img
+              className='h-full w-full object-cover'
+              src={`http://localhost:5000/images/${employeeData.photo}`}
+              alt='Profil'
+            />
+          </div>
+          <MdKeyboardArrowDown className='text-xl' />
+        </Link>
+      )}
+
+      {dropdownOpen && (
+        <div
+          ref={dropdown}
+          className='absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark'
+        >
+          <ul className='flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark'>
+            <li>
+              <Link
+                to={user?.role === 'admin' ? '/settings/change-password' : '/employee/change-password'}
+                className='flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base'
+              >
+                <FiSettings className='text-xl' />
+                Settings
+              </Link>
+            </li>
+            <li>
+              <button
+                onClick={onLogout}
+                className='flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base'
+              >
+                <BiLogOut className='text-xl' />
+                Log Out
+              </button>
+            </li>
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default DropdownProfil;
